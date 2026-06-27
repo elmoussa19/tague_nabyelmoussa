@@ -1,0 +1,124 @@
+<app-loader [isLoading]="isLoading"></app-loader>
+<body class="bg-gradient-to-br from-blue-50 to-white min-h-screen text-gray-800 flex">
+  <!-- Sidebar -->
+  <app-sidebar *ngIf="chanteur" [chanteur]="chanteur" class="fixed w-64 h-full bg-white shadow-xl z-10"></app-sidebar>
+
+  <!-- Contenu principal -->
+  <div class="ml-64 flex-1">
+    <div class="p-6">
+      <div *ngIf="chanteur" class="max-w-6xl mx-auto">
+        <!-- En-tête de bienvenue -->
+        <header class="text-center py-10">
+          <div class="flex items-center justify-center gap-4">
+            <div class="bg-gradient-to-br from-blue-500 to-purple-500 text-white rounded-full p-4 shadow-lg">
+              <i class="ri-home-4-line text-3xl"></i>
+            </div>
+            <h1 class="text-4xl font-extrabold text-blue-700 underline">Studio de {{ chanteur.nom }}</h1>
+          </div>
+          <p class="text-blue-600 mt-2 text-lg font-medium">Voici un aperçu de vos performances récentes</p>
+          <!-- Bouton Rafraîchir -->
+          <button
+            (click)="refreshData()"
+            class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full shadow-md flex items-center gap-2 transition"
+            [disabled]="isButtonLoading['refresh']"
+          >
+            <i *ngIf="!isButtonLoading['refresh']" class="ri-refresh-line"></i>
+            <i *ngIf="isButtonLoading['refresh']" class="ri-loader-4-line animate-spin"></i>
+            {{ isButtonLoading['refresh'] ? 'Chargement...' : 'Rafraîchir les données' }}
+          </button>
+        </header>
+
+        <!-- Statistiques principales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+          <!-- Gamou -->
+          <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-5 flex items-center justify-between hover:shadow-xl transition-all duration-300">
+            <div>
+              <p class="text-gray-600 text-sm">Chants Gamou</p>
+              <h2 class="text-2xl font-bold text-blue-800">{{ gamous.length }}</h2>
+              <span class="text-green-600 text-sm mt-1 inline-block">+{{ getNewGamousThisMonth() }} ce mois</span>
+            </div>
+            <div class="bg-blue-500 text-white p-3 rounded-xl shadow-sm">
+              <i class="ri-music-line text-xl"></i>
+            </div>
+          </div>
+
+          <!-- Khassida -->
+          <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-5 flex items-center justify-between hover:shadow-xl transition-all duration-300">
+            <div>
+              <p class="text-gray-600 text-sm">Poèmes Khassida</p>
+              <h2 class="text-2xl font-bold text-blue-800">{{ khassidas.length }}</h2>
+              <span class="text-green-600 text-sm mt-1 inline-block">+{{ getNewKhassidasThisMonth() }} ce mois</span>
+            </div>
+            <div class="bg-green-500 text-white p-3 rounded-xl shadow-sm">
+              <i class="ri-heart-line text-xl"></i>
+            </div>
+          </div>
+
+          <!-- Khilass -->
+          <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-5 flex items-center justify-between hover:shadow-xl transition-all duration-300">
+            <div>
+              <p class="text-gray-600 text-sm">Récitations Khilass</p>
+              <h2 class="text-2xl font-bold text-blue-800">{{ khilass.length }}</h2>
+              <span class="text-green-600 text-sm mt-1 inline-block">+{{ getNewKhilassThisMonth() }} ce mois</span>
+            </div>
+            <div class="bg-purple-500 text-white p-3 rounded-xl shadow-sm">
+              <i class="ri-music-line text-xl"></i>
+            </div>
+          </div>
+
+          <!-- Total Écoutes -->
+          <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-5 flex items-center justify-between hover:shadow-xl transition-all duration-300">
+            <div>
+              <p class="text-gray-600 text-sm">Total Écoutes</p>
+              <h2 class="text-2xl font-bold text-blue-800">{{ getTotalListens() | number }}</h2>
+              <span class="text-green-600 text-sm mt-1 inline-block">+15% ce mois</span>
+            </div>
+            <div class="bg-orange-500 text-white p-3 rounded-xl shadow-sm">
+              <i class="ri-line-chart-line text-xl"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chansons récentes -->
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-blue-800">Chansons Récentes</h2>
+            <a routerLink="/songs" class="text-sm text-blue-600 hover:underline">Voir tout</a>
+          </div>
+
+          <!-- Liste chanson -->
+          <div class="space-y-4">
+            <div *ngFor="let song of recentSongs" class="flex items-center gap-4">
+              <img [src]="getImageUrl(chanteur.image)" [alt]="song.titre" class="w-14 h-14 rounded-lg object-cover">
+              <div class="flex-1">
+                <p class="font-medium text-blue-800">{{ song.titre }}</p>
+                <div class="text-sm text-gray-500 flex items-center gap-2">
+                  <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-xs">{{ getSongType(song) }}</span>
+                  <span>• {{ song.created_at | date:'short' }}</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 text-gray-500 text-sm">
+                <span><i class="ri-play-line mr-1"></i>125K</span>
+                <span><i class="ri-heart-line mr-1"></i>8.5K</span>
+              </div>
+            </div>
+            <p *ngIf="!recentSongs.length" class="text-gray-600">Aucune chanson récente disponible.</p>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!chanteur" class="text-center text-gray-600 py-10">
+        Chargement des détails du chanteur...
+      </div>
+
+      <!-- Modal personnalisée -->
+      <app-modal
+        [isVisible]="showCustomModal"
+        [modalType]="modalConfig.type"
+        [title]="modalConfig.title"
+        [message]="modalConfig.message"
+        [icon]="modalConfig.icon"
+        (cancel)="onModalCancel()"
+      ></app-modal>
+    </div>
+  </div>
+</body>

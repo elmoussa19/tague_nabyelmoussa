@@ -1,0 +1,186 @@
+<app-loader [isLoading]="isLoading"></app-loader>
+<body class="bg-gradient-to-br from-blue-50 to-white min-h-screen text-gray-800 flex">
+  <!-- Sidebar -->
+  <app-sidebar class="fixed w-64 h-full bg-white shadow-xl z-10"></app-sidebar>
+
+  <!-- Contenu principal -->
+  <div class="ml-64 flex-1">
+    <div class="p-6">
+      <!-- Header -->
+      <header class="text-center py-10">
+        <div class="flex items-center justify-center gap-4">
+          <div class="bg-gradient-to-br from-blue-500 to-purple-500 text-white rounded-full p-4 shadow-lg">
+            <i class="ri-music-line text-3xl"></i>
+          </div>
+          <h1 class="text-4xl font-extrabold text-blue-700 underline">Gestionnaire des khassidas</h1>
+        </div>
+        <p class="text-blue-600 mt-2 text-lg font-medium">Gérez votre collection musicale avec style</p>
+      </header>
+
+      <!-- Barre supérieure -->
+      <div class="flex flex-wrap items-center justify-between bg-white/80 backdrop-blur-md shadow-lg p-5 rounded-2xl mt-6 gap-4 max-w-6xl mx-auto">
+        <!-- Barre de recherche -->
+        <div class="flex-1 min-w-[200px]">
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (input)="searchKhassidas()"
+            placeholder="Rechercher par titre…"
+            class="w-full px-4 py-3 border border-blue-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+          />
+        </div>
+
+        <!-- Nombre de chansons -->
+        <div class="flex items-center space-x-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-xl font-medium shadow-sm">
+          <i class="ri-music-2-line text-lg text-blue-600"></i>
+          <span>{{ filteredKhassidas.length }} chansons</span>
+        </div>
+
+        <!-- Bouton Ajouter -->
+        <button
+          (click)="toggleForm()"
+          class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-full shadow-md font-semibold flex items-center gap-2 transition"
+          [disabled]="isButtonLoading['add']"
+        >
+          <i *ngIf="!isButtonLoading['add']" class="ri-add-line text-lg"></i>
+          <i *ngIf="isButtonLoading['add']" class="ri-loader-4-line animate-spin text-lg"></i>
+          {{ isButtonLoading['add'] ? 'Chargement...' : 'Ajouter une khassida' }}
+        </button>
+      </div>
+
+      <!-- Formulaire -->
+      <div id="addForm" class="max-w-4xl mx-auto mt-6 px-4 transition-all duration-300" [ngClass]="{ 'hidden': !showForm }">
+        <form (ngSubmit)="saveKhassida()" class="bg-white shadow-xl rounded-2xl p-6 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <input
+                type="text"
+                [(ngModel)]="titre"
+                name="titre"
+                placeholder="Titre de la chanson"
+                class="px-4 py-2 border rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-300"
+                required
+              />
+            </div>
+            <div>
+              <div *ngIf="selectedKhassida && currentAudioUrl" class="mb-2">
+                <p class="text-sm text-gray-600">Fichier audio actuel :</p>
+                <audio controls [src]="currentAudioUrl" class="w-full rounded"></audio>
+              </div>
+              <input
+                type="file"
+                (change)="onFileSelected($event)"
+                accept=".mp3,.wav,.ogg,.aac,.flac,.m4a,.wma"
+                class="px-4 py-2 border rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-300"
+                [required]="!selectedKhassida"
+              />
+            </div>
+          </div>
+          <div class="text-right pt-4">
+            <button
+              type="submit"
+              [disabled]="isLoading || !titre"
+              class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full transition"
+            >
+              Enregistrer
+            </button>
+            <button
+              type="button"
+              (click)="toggleForm()"
+              class="ml-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-full transition"
+            >
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Liste des chansons -->
+      <section class="mt-8 max-w-4xl mx-auto px-4 space-y-6">
+        <div
+          *ngFor="let khassida of filteredKhassidas"
+          class="flex items-center justify-between bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-5 hover:shadow-xl transition-all duration-300"
+        >
+          <!-- Partie gauche : Lecture + infos -->
+          <div class="flex items-center gap-4">
+            <!-- Bouton Play / Pause -->
+            <button
+              (click)="togglePlay(khassida)"
+              class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-4 rounded-full shadow-md transition"
+              [attr.aria-label]="isPlaying(khassida.id) ? 'Pause audio' : 'Play audio'"
+            >
+              <i
+                class="text-2xl"
+                [ngClass]="isPlaying(khassida.id) ? 'ri-pause-line' : 'ri-play-line'"
+              ></i>
+            </button>
+
+            <!-- Informations chanson -->
+            <div class="flex flex-col gap-1">
+              <h2 class="font-bold text-lg text-blue-800">{{ khassida.titre }}</h2>
+              <p class="text-sm text-blue-600 font-medium">
+                {{ khassida.auteur?.nom || 'Inconnu' }}
+              </p>
+
+              <!-- Barre de progression -->
+              <div *ngIf="khassida.duration" class="mt-1 flex items-center gap-2">
+                <progress
+                  [value]="khassida.currentTime || 0"
+                  [max]="khassida.duration"
+                  class="w-32 h-2 bg-gray-200 rounded"
+                ></progress>
+                <span class="text-xs text-gray-500">
+                  {{ formatDuration(khassida.duration) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Partie droite : Durée + Actions -->
+          <div class="flex items-center gap-3">
+            <!-- Durée -->
+            <div class="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-xl text-sm font-medium shadow-sm">
+              <i class="ri-time-line"></i>
+              <span>{{ khassida.duration ? formatDuration(khassida.duration) : 'Inconnu' }}</span>
+            </div>
+
+            <!-- Boutons d'action -->
+            <button
+              (click)="viewKhassida(khassida.id)"
+              class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition shadow"
+            >
+              <i class="ri-eye-line"></i>
+            </button>
+            <button
+              (click)="editKhassida(khassida.id)"
+              class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition shadow"
+              [disabled]="isButtonLoading['edit_' + khassida.id]"
+            >
+              <i *ngIf="!isButtonLoading['edit_' + khassida.id]" class="ri-edit-line"></i>
+              <i *ngIf="isButtonLoading['edit_' + khassida.id]" class="ri-loader-4-line animate-spin"></i>
+            </button>
+            <button
+              (click)="deleteKhassida(khassida.id)"
+              class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition shadow"
+              [disabled]="isButtonLoading['delete_' + khassida.id]"
+            >
+              <i *ngIf="!isButtonLoading['delete_' + khassida.id]" class="ri-delete-bin-line"></i>
+              <i *ngIf="isButtonLoading['delete_' + khassida.id]" class="ri-loader-4-line animate-spin"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Modal personnalisée -->
+      <app-modal
+        [isVisible]="showCustomModal"
+        [modalType]="modalConfig.type"
+        [title]="modalConfig.title"
+        [message]="modalConfig.message"
+        [icon]="modalConfig.icon"
+        (confirm)="onModalConfirm()"
+        (cancel)="onModalCancel()"
+      ></app-modal>
+    </div>
+  </div>
+</body>

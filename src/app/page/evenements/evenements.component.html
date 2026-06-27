@@ -1,0 +1,183 @@
+<app-loader [isLoading]="isLoading"></app-loader>
+<body class="bg-gradient-to-br from-blue-100 via-purple-50 to-white min-h-screen text-gray-800 flex font-sans">
+  <!-- Sidebar -->
+  <app-sidebar class="fixed w-64 h-full bg-white shadow-2xl z-10 rounded-r-3xl"></app-sidebar>
+
+  <!-- Contenu principal -->
+  <div class="ml-64 flex-1">
+    <div class="p-8">
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+        <h1 class="text-4xl font-extrabold flex items-center gap-3 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500">
+          <i class="ri-calendar-event-line text-4xl"></i> Gestionnaire d'Événements
+        </h1>
+
+        <div class="flex flex-col md:flex-row gap-2 md:items-center w-full md:w-auto">
+          <!-- Search -->
+          <div class="relative w-full md:w-64">
+            <input
+              [(ngModel)]="searchTerm"
+              (input)="searchEvenements()"
+              id="searchInput"
+              type="text"
+              placeholder="Rechercher un événement..."
+              class="w-full px-4 py-2 pl-10 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <span class="absolute left-3 top-2.5 text-gray-400">
+              <i class="ri-search-line text-lg"></i>
+            </span>
+          </div>
+
+          <!-- Count -->
+          <div class="flex items-center gap-1 text-purple-600 bg-purple-100 px-4 py-2 rounded-full text-sm font-medium shadow-sm md:ml-4">
+            <i class="ri-group-line"></i>
+            {{ filteredEvenements.length }} événements
+          </div>
+
+          <!-- Add button -->
+          <button
+            (click)="toggleForm()"
+            class="bg-gradient-to-r from-blue-600 to-purple-600 hover:brightness-110 text-white px-5 py-2 rounded-full flex items-center gap-2 shadow-md"
+            [disabled]="isButtonLoading['add']"
+          >
+            <i *ngIf="!isButtonLoading['add']" class="ri-add-line"></i>
+            <i *ngIf="isButtonLoading['add']" class="ri-loader-4-line animate-spin"></i>
+            {{ isButtonLoading['add'] ? 'Chargement...' : 'Ajouter' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulaire -->
+      <div id="formulaire" class="mb-10 bg-white p-6 rounded-3xl shadow-lg transition-all duration-300 border border-purple-100" [ngClass]="{ 'hidden': !showForm }">
+        <h2 class="text-2xl font-bold mb-5 text-purple-600">{{ selectedEvenement ? 'Modifier l’événement' : 'Ajouter un événement' }}</h2>
+        <form (ngSubmit)="saveEvenement()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <input
+            type="text"
+            [(ngModel)]="titre"
+            name="titre"
+            placeholder="Nom de l'événement"
+            class="border px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400"
+            required
+          />
+          <input
+            type="text"
+            [(ngModel)]="lieux"
+            name="lieux"
+            placeholder="Lieu"
+            class="border px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400"
+            required
+          />
+          <input
+            type="date"
+            [(ngModel)]="date"
+            name="date"
+            class="border px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400"
+            required
+          />
+          <div>
+            <div *ngIf="selectedEvenement && currentImageUrl" class="mb-2">
+              <p class="text-sm text-gray-600">Image actuelle :</p>
+              <img [src]="currentImageUrl" alt="Image actuelle" class="h-24 w-auto rounded-xl shadow" />
+            </div>
+            <input
+              type="file"
+              (change)="onFileSelected($event)"
+              accept=".jpg,.jpeg,.png,.gif,.svg"
+              class="border px-4 py-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-purple-400"
+              [required]="!selectedEvenement"
+            />
+          </div>
+          <textarea
+            [(ngModel)]="description"
+            name="description"
+            placeholder="Description"
+            class="border px-4 py-3 rounded-xl col-span-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+            rows="3"
+            required
+          ></textarea>
+          <div class="col-span-2 text-right">
+            <button
+              type="submit"
+              [disabled]="isLoading || !titre || !description || !date || !lieux"
+              class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full font-semibold"
+            >
+              Enregistrer
+            </button>
+            <button
+              type="button"
+              (click)="toggleForm()"
+              class="ml-2 bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-full"
+            >
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Cartes des événements -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div
+          *ngFor="let evenement of filteredEvenements"
+          class="bg-white rounded-3xl shadow-md hover:shadow-xl transition overflow-hidden relative group"
+        >
+          <img
+            *ngIf="evenement.image"
+            [src]="getImageUrl(evenement.image)"
+            [alt]="evenement.titre"
+            class="w-full h-48 object-cover"
+          />
+          <div *ngIf="!evenement.image" class="w-full h-48 bg-gray-200 flex items-center justify-center rounded-t-3xl">
+            <span class="text-gray-500">Aucune image</span>
+          </div>
+          <div class="p-5">
+            <h3 class="text-xl font-semibold text-purple-700 mb-1">{{ evenement.titre }}</h3>
+            <p class="text-sm text-gray-600">{{ evenement.description }}</p>
+            <div class="flex items-center text-sm text-gray-500 mt-3 gap-2">
+              <i class="ri-map-pin-line"></i> {{ evenement.lieux }}
+            </div>
+            <div class="flex items-center text-sm text-gray-500 mt-1 gap-2">
+              <i class="ri-calendar-line"></i> {{ formatDate(evenement.date) }}
+            </div>
+          </div>
+          <div class="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition">
+            <button
+              (click)="editEvenement(evenement.id!)"
+              class="text-blue-600 hover:text-blue-800"
+              [disabled]="isButtonLoading['edit_' + evenement.id]"
+            >
+              <i *ngIf="!isButtonLoading['edit_' + evenement.id]" class="ri-edit-line text-xl"></i>
+              <i *ngIf="isButtonLoading['edit_' + evenement.id]" class="ri-loader-4-line animate-spin text-xl"></i>
+            </button>
+            <button
+              (click)="deleteEvenement(evenement.id!)"
+              class="text-red-600 hover:text-red-800"
+              [disabled]="isButtonLoading['delete_' + evenement.id]"
+            >
+              <i *ngIf="!isButtonLoading['delete_' + evenement.id]" class="ri-delete-bin-6-line text-xl"></i>
+              <i *ngIf="isButtonLoading['delete_' + evenement.id]" class="ri-loader-4-line animate-spin text-xl"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Aucune donnée -->
+        <p *ngIf="!filteredEvenements.length && !isLoading" class="text-center text-gray-500 col-span-full">
+          Aucun événement disponible pour le moment.
+        </p>
+        <p *ngIf="isLoading" class="text-center text-gray-500 col-span-full animate-pulse">
+          Chargement des événements...
+        </p>
+      </div>
+
+      <!-- Modal personnalisée -->
+      <app-modal
+        [isVisible]="showCustomModal"
+        [modalType]="modalConfig.type"
+        [title]="modalConfig.title"
+        [message]="modalConfig.message"
+        [icon]="modalConfig.icon"
+        (confirm)="onModalConfirm()"
+        (cancel)="onModalCancel()"
+      ></app-modal>
+    </div>
+  </div>
+</body>

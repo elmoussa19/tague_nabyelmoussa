@@ -1,0 +1,79 @@
+<!-- page/singer-form/singer-form.component.html -->
+<div class="fixed inset-0  bg-opacity-40 backdrop-blur-sm flex items-center justify-center animate-fadeInScale z-50">
+  <div class="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden border border-gray-100">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+      <div>
+        <h2 class="text-xl font-semibold tracking-wide">
+          {{ isEditMode ? 'Modifier le chanteur' : 'Ajouter un nouveau chanteur' }}
+        </h2>
+        <p class="text-sm opacity-90">Remplissez les informations ci-dessous</p>
+      </div>
+      <button (click)="onCancel()" class="hover:scale-110 transition">
+        <i class="ri-close-line text-2xl hover:text-red-200"></i>
+      </button>
+    </div>
+
+    <!-- Formulaire -->
+    <form (ngSubmit)="onSubmit()" class="px-6 py-6 space-y-5">
+      <!-- Nom -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          <i class="ri-user-line mr-1"></i> Nom du chanteur <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="nom"
+          name="nom"
+          placeholder="Entrez le nom du chanteur"
+          required
+          class="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+        >
+      </div>
+
+      <!-- Image -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          <i class="ri-image-line mr-1"></i> Image du chanteur
+        </label>
+        <input
+          type="file"
+          (change)="onFileChange($event)"
+          accept="image/*"
+          class="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+        >
+      </div>
+
+      <!-- Biographie -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          <i class="ri-file-text-line mr-1"></i> Biographie
+        </label>
+        <textarea
+          rows="4"
+          [(ngModel)]="bibliographie"
+          name="bibliographie"
+          placeholder="Décrivez le chanteur, son style, sa carrière, ses accomplissements..."
+          class="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition resize-none"
+        ></textarea>
+      </div>
+
+      <!-- Boutons -->
+      <div class="flex justify-end space-x-3 pt-4">
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition font-medium"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-lg hover:opacity-90 shadow-md transition font-medium flex items-center gap-2"
+        >
+          <i class="ri-save-line"></i> Enregistrer
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

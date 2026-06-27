@@ -1,0 +1,42 @@
+<!-- Overlay -->
+<div *ngIf="isVisible" class="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50">
+  <!-- Modal -->
+  <div class="bg-white rounded-2xl shadow-lg w-[400px] p-6 relative">
+    <!-- Icon -->
+    <div class="flex justify-center mb-4">
+      <i class="{{ icon }} text-6xl" [ngClass]="modalType === 'success' ? 'text-green-500' : 'text-red-500'"></i>
+    </div>
+
+    <!-- Title -->
+    <h2 class="text-xl font-semibold text-center text-gray-800 mb-2">
+      {{ title }}
+    </h2>
+
+    <!-- Message -->
+    <p class="text-center text-gray-600 mb-6">
+      {{ message }}
+    </p>
+
+    <!-- Boutons -->
+    <div class="flex justify-center gap-4">
+      <button
+        *ngIf="modalType !== 'success'"
+        (click)="onCancel()"
+        class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-semibold shadow-md transition"
+      >
+        Annuler
+      </button>
+      <button
+        (click)="onConfirm()"
+        class="bg-{{ modalType === 'success' ? 'green' : 'red' }}-500 hover:bg-{{ modalType === 'success' ? 'green' : 'red' }}-600 text-white px-6 py-2 rounded-lg font-semibold shadow-md transition"
+      >
+        {{ modalType === 'success' ? 'Parfait !' : 'Confirmer' }}
+      </button>
+    </div>
+
+    <!-- Bouton close -->
+    <button (click)="onCancel()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+      <i class="ri-close-line text-2xl"></i>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+/* evenements.component.css */
+img {
+  max-width: 100%;
+  height: auto;
+}
+.event-card {
+  position: relative;
+}
+.event-card:hover .group-hover\:opacity-100 {
+  opacity: 1;
+}

@@ -1,0 +1,41 @@
+/* gamou.component.css */
+progress {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  height: 8px;
+  border-radius: 4px;
+  background-color: #e5e7eb; /* Tailwind's gray-200 */
+  overflow: hidden;
+}
+
+progress::-webkit-progress-bar {
+  background-color: #e5e7eb;
+  border-radius: 4px;
+}
+
+progress::-webkit-progress-value {
+  background: linear-gradient(
+    to right,
+    #3b82f6 0%, /* Tailwind's blue-500 */
+    #3b82f6 20%,
+    #60a5fa 40%, /* Tailwind's blue-400 */
+    #3b82f6 60%,
+    #60a5fa 80%,
+    #3b82f6 100%
+  ); /* Simulate waveform effect */
+  border-radius: 4px;
+}
+
+progress::-moz-progress-bar {
+  background: linear-gradient(
+    to right,
+    #3b82f6 0%,
+    #3b82f6 20%,
+    #60a5fa 40%,
+    #3b82f6 60%,
+    #60a5fa 80%,
+    #3b82f6 100%
+  );
+  border-radius: 4px;
+}

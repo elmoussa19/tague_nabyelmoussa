@@ -1,0 +1,90 @@
+<aside class="w-64 bg-gradient-to-b from-purple-50 to-white shadow-xl h-screen p-5 flex flex-col justify-between rounded-r-3xl">
+  <!-- Top -->
+  <div>
+    <!-- Logo -->
+    <div class="flex items-center gap-3 mb-8">
+      <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-3 rounded-2xl shadow-md">
+        <i class="ri-music-line text-2xl"></i>
+      </div>
+      <div>
+        <h1 class="font-extrabold text-xl bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Tague Naby</h1>
+        <p class="text-sm text-gray-400">Dashboard</p>
+      </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="space-y-2">
+      <a
+        [routerLink]="['/dashboard', chanteurId]"
+        routerLinkActive="text-purple-600 bg-purple-50"
+        class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-purple-100 transition-all font-medium"
+      >
+        <i class="ri-bar-chart-line text-lg"></i> Dashboard
+      </a>
+
+      <a
+        [routerLink]="['/gamou', chanteurId]"
+        routerLinkActive="text-purple-600 bg-purple-50"
+        class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-purple-100 transition-all"
+      >
+        <i class="ri-music-line text-lg"></i> Gamou
+      </a>
+
+      <a
+        [routerLink]="['/khassida', chanteurId]"
+        routerLinkActive="text-purple-600 bg-purple-50"
+        class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-purple-100 transition-all"
+      >
+        <i class="ri-music-line text-lg"></i> Khassida
+      </a>
+
+      <a
+        [routerLink]="['/khilass', chanteurId]"
+        routerLinkActive="text-purple-600 bg-purple-50"
+        class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-purple-100 transition-all"
+      >
+        <i class="ri-music-line text-lg"></i> Khilass
+      </a>
+
+      <a
+        [routerLink]="['/galerie', chanteurId]"
+        routerLinkActive="text-purple-600 bg-purple-50"
+        class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-purple-100 transition-all"
+      >
+        <i class="ri-image-line text-lg"></i> Galerie
+      </a>
+
+      <a
+        [routerLink]="['/evenements', chanteurId]"
+        routerLinkActive="text-purple-600 bg-purple-50"
+        class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-purple-100 transition-all"
+      >
+        <i class="ri-calendar-line text-lg"></i> Événement
+      </a>
+    </nav>
+  </div>
+
+  <!-- Bottom Profile + Logout -->
+  <div class="pt-4 border-t border-gray-200">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-2 rounded-full shadow">
+        <i class="ri-user-line text-lg"></i>
+      </div>
+      <div>
+        <p class="font-semibold text-sm text-gray-800">
+          {{ authService.getCurrentUser()?.name || 'Utilisateur' }}
+        </p>
+        <p class="text-xs text-gray-400">Artiste</p>
+      </div>
+    </div>
+    <button
+      (click)="logout()"
+      [disabled]="isButtonLoading"
+      class="flex items-center gap-2 text-gray-600 text-sm hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white transition-all px-3 py-1 rounded-lg cursor-pointer"
+    >
+      <i *ngIf="isButtonLoading" class="ri-loader-4-line animate-spin text-base"></i>
+      <i *ngIf="!isButtonLoading" class="ri-logout-box-r-line text-base"></i>
+      {{ isButtonLoading ? 'Déconnexion...' : 'Déconnexion' }}
+    </button>
+  </div>
+</aside>
